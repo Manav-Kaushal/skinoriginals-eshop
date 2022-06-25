@@ -1,4 +1,5 @@
 import { Button } from "@components/Button";
+import { useShoppingCart } from "@context/ShoppingCartContext";
 import { company } from "@utils/config";
 import { classNames, convertToINR } from "@utils/helpers";
 import { NextSeo } from "next-seo";
@@ -7,11 +8,12 @@ import { useEffect, useState } from "react";
 import { HiOutlineHeart, HiStar } from "react-icons/hi";
 import ReactImageGallery from "react-image-gallery";
 
-const Slug = ({ addToCart, product }) => {
+const Slug = ({ product }: { product: any }) => {
+  const { increaseItemQty } = useShoppingCart();
   const [productImages, setProductImages] = useState([]);
   useEffect(() => {
     setProductImages(
-      product.images.data.map((image) => {
+      product.images.data.map((image: any) => {
         return {
           ...image,
           original: image.attributes.url,
@@ -116,7 +118,7 @@ const Slug = ({ addToCart, product }) => {
                     type="button"
                     variant="secondary"
                     size="large"
-                    onClick={() => addToCart(product, 1)}
+                    onClick={() => increaseItemQty(product.id)}
                   >
                     Add to bag
                   </Button>
@@ -142,7 +144,7 @@ const Slug = ({ addToCart, product }) => {
   );
 };
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps(context: any) {
   const { query, resolvedUrl } = context;
   const slug = query.slug;
   const endPoint = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/products?filters[slug]=${slug}&populate=*`;

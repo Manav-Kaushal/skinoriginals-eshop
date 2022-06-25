@@ -1,8 +1,48 @@
-import '../styles/globals.css'
-import type { AppProps } from 'next/app'
+import { Layout } from "@components/Layout";
+import { ProductsProvider } from "@context/ProductsContext";
+import { CartContextProvider } from "@context/ShoppingCartContext";
+import useWindowSize from "@utils/hooks/useWindowSize";
+import "antd/dist/antd.css";
+import Head from "next/head";
+import { createContext, useEffect, useState } from "react";
+import "react-image-gallery/styles/css/image-gallery.css";
+import "../styles/globals.css";
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+const DeviceContext = createContext({});
+
+function MyApp({ Component, pageProps }: { Component: any; pageProps: any }) {
+  const [mobile, setMobile] = useState<boolean>(false);
+  const { width } = useWindowSize();
+
+  useEffect(() => {
+    if (width) {
+      if (width < 768) {
+        setMobile(true);
+      } else {
+        setMobile(false);
+      }
+    }
+  }, [width]);
+
+  return (
+    <>
+      <Head>
+        <meta
+          name="viewport"
+          content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0"
+        />
+      </Head>
+      <DeviceContext.Provider value={{ mobile }}>
+        <ProductsProvider>
+          <CartContextProvider>
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
+          </CartContextProvider>
+        </ProductsProvider>
+      </DeviceContext.Provider>
+    </>
+  );
 }
 
-export default MyApp
+export default MyApp;

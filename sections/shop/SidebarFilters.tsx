@@ -9,11 +9,11 @@ import {
   HiOutlineX,
 } from "react-icons/hi";
 
-const SidebarFilters = ({ handleFilters }) => {
+const SidebarFilters = ({ handleFilters }: { handleFilters?: any }) => {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [checked, setChecked] = useState([]);
 
-  function handleChange(value) {
+  function handleChange(value: any) {
     const currentIndex = checked.indexOf(value);
     const tempChecked = [...checked];
     if (currentIndex === -1) {

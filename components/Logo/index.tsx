@@ -2,7 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-export const Logo = ({ desktop, mobile }) => {
+interface LogoInterface {
+  desktop?: boolean;
+  mobile?: boolean;
+}
+
+export const Logo = ({ desktop, mobile }: LogoInterface) => {
   return (
     <>
       {mobile && (
