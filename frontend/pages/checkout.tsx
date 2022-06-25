@@ -1,8 +1,9 @@
 import { Button } from "@components/Button";
 import { EmptyCart } from "@components/EmptyCart";
-import { Tooltip } from "antd";
+import { useShoppingCart } from "@context/ShoppingCartContext";
 import { company } from "@utils/config";
 import { convertToINR, reducer } from "@utils/helpers";
+import { Tooltip } from "antd";
 import { NextSeo } from "next-seo";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,11 +12,13 @@ import { useEffect, useState } from "react";
 import { HiInformationCircle } from "react-icons/hi";
 import { RiDeleteBinLine } from "react-icons/ri";
 
-const Checkout = ({ cart, removeFromCart }) => {
-  const [subTotal, setSubTotal] = useState(0);
-  const [shippingCharge, setShippingCharge] = useState(50);
-  const [total, setTotal] = useState(0);
-  const [isFormValid, setIsFormValid] = useState(50);
+const Checkout = () => {
+  const { cartItems, removeFromCart } = useShoppingCart();
+
+  const [subTotal, setSubTotal] = useState<number>(0);
+  const [shippingCharge, setShippingCharge] = useState<number>(50);
+  const [total, setTotal] = useState<number>(0);
+  const [isFormValid, setIsFormValid] = useState<boolean>(false);
   const [form, setForm] = useState({
     address: "",
     city: "",
@@ -29,8 +32,8 @@ const Checkout = ({ cart, removeFromCart }) => {
 
   useEffect(() => {
     let subTotalCal = 0;
-    for (let index = 0; index < cart.length; index++) {
-      subTotalCal = subTotalCal + cart[index].price;
+    for (let index = 0; index < cartItems.length; index++) {
+      subTotalCal = subTotalCal + cartItems[index].price;
     }
     if (subTotalCal > 799) {
       setShippingCharge(0);
@@ -39,9 +42,9 @@ const Checkout = ({ cart, removeFromCart }) => {
     }
     setSubTotal(subTotalCal);
     setTotal(subTotalCal + shippingCharge);
-  }, [cart]);
+  }, [cartItems]);
 
-  function handleChange(e) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
@@ -67,7 +70,7 @@ const Checkout = ({ cart, removeFromCart }) => {
         ...form,
         orderId: orderId,
         amount: total,
-        cart: reducer(cart, ["id", "sku", "slug", "title", "price"]),
+        cart: reducer(cartItems, ["id", "sku", "slug", "title", "price"]),
       }),
     });
     const data = await res.json();
@@ -82,7 +85,7 @@ const Checkout = ({ cart, removeFromCart }) => {
         amount: total /* update amount */,
       },
       handler: {
-        notifyMerchant: function (eventName, data) {
+        notifyMerchant: function (eventName: any, data: any) {
           console.log("notifyMerchant handler function called");
           console.log("eventName => ", eventName);
           console.log("data => ", data);
@@ -97,7 +100,7 @@ const Checkout = ({ cart, removeFromCart }) => {
           // after successfully updating configuration, invoke JS Checkout
           window.Paytm.CheckoutJS.invoke();
         })
-        .catch(function onError(error) {
+        .catch(function onError(error: any) {
           console.log("error => ", error);
         });
     }
@@ -109,11 +112,11 @@ const Checkout = ({ cart, removeFromCart }) => {
       <Script
         id="paytm"
         type="application/javascript"
-        crossorigin="anonymous"
+        crossOrigin="anonymous"
         src={`https://securegw.paytm.in/merchantpgpui/checkoutjs/merchants/${process.env.NEXT_PUBLIC_MID}.js`}
       />
 
-      {cart.length ? (
+      {cartItems.length ? (
         <div className="bg-white">
           <div className="relative grid grid-cols-1 gap-x-16 max-w-7xl mx-auto lg:px-8 lg:grid-cols-2 lg:pt-16">
             <h1 className="sr-only">Checkout</h1>
@@ -140,7 +143,7 @@ const Checkout = ({ cart, removeFromCart }) => {
                   role="list"
                   className="text-sm font-medium divide-y divide-gray-800 divide-opacity-10"
                 >
-                  {cart.map((product) => (
+                  {cartItems.map((product) => (
                     <li
                       key={product.id}
                       className="flex items-start py-6 space-x-4 group"
@@ -164,7 +167,6 @@ const Checkout = ({ cart, removeFromCart }) => {
                           <RiDeleteBinLine
                             className="w-5 h-5 text-gray-500 hover:text-red-400 transition-200 cursor-pointer"
                             onClick={() => {
-                              console.log({ product });
                               removeFromCart(product.id);
                             }}
                           />
@@ -387,7 +389,7 @@ const Checkout = ({ cart, removeFromCart }) => {
                             id="region"
                             name="region"
                             onChange={handleChange}
-                            value={form.state}
+                            value={form.region}
                             autoComplete="address-level1"
                             className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
                           />

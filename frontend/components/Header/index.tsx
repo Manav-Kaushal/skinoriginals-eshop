@@ -11,35 +11,11 @@ import { currencies, navigation } from "@utils/Mocks/mockData";
 import { classNames } from "@utils/helpers";
 import { Logo } from "@components/Logo";
 import Link from "next/link";
+import { CartItemInterface } from "@interfaces/CartInterfaces";
+import { useShoppingCart } from "@context/ShoppingCartContext";
 
-interface CartInterface {
-  availableQty: number;
-  category: string;
-  createdAt: string;
-  description: string;
-  id: number;
-  images: Object;
-  inStock: boolean;
-  metaInfo: Object | null;
-  price: number;
-  publishedAt: string;
-  qty: number;
-  reviews: { count: number, rating: number };
-  shortDescription: string;
-  size: string;
-  sku: string;
-  slug: string;
-  title: string;
-  updatedAt: string;
-  url: string;
-}
-
-interface HeaderInterface {
-  cart: CartInterface[];
-}
-
-export const Header = ({ cart }: HeaderInterface) => {
-  console.log({ cart });
+export const Header = () => {
+  const { cartQty } = useShoppingCart();
   const [open, setOpen] = useState(false);
 
   return (
@@ -432,7 +408,7 @@ export const Header = ({ cart }: HeaderInterface) => {
                               aria-hidden="true"
                             />
                             <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                              {cart.length ? cart.length : 0}
+                              {cartQty}
                             </span>
                             <span className="sr-only">
                               items in cart, view bag

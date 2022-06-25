@@ -3,8 +3,18 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { Tag } from "antd";
+import { CartItemInterface } from "../../Interfaces/CartInterfaces";
 
-export const ProductCard = ({ product }) => {
+export interface ProductInterface {
+  id: number;
+  attributes: CartItemInterface;
+}
+
+interface ProductCardInterface {
+  product: ProductInterface;
+}
+
+export const ProductCard = ({ product }: ProductCardInterface) => {
   return (
     <Link href={`/product-view/${product.attributes.slug}`}>
       <div
