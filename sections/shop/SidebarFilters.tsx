@@ -10,10 +10,10 @@ import {
 } from "react-icons/hi";
 
 const SidebarFilters = ({ handleFilters }: { handleFilters?: any }) => {
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [checked, setChecked] = useState([]);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState<boolean>(false);
+  const [checked, setChecked] = useState<string[]>([]);
 
-  function handleChange(value: any) {
+  function handleChange(value: string) {
     const currentIndex = checked.indexOf(value);
     const tempChecked = [...checked];
     if (currentIndex === -1) {
@@ -151,7 +151,7 @@ const SidebarFilters = ({ handleFilters }: { handleFilters?: any }) => {
             {filters.map((section, sectionIdx) => (
               <div
                 key={section.name}
-                className={sectionIdx === 0 ? null : "pt-8"}
+                className={sectionIdx === 0 ? "" : "pt-8"}
               >
                 <fieldset>
                   <legend className="block text-sm font-bold text-gray-900">
@@ -166,8 +166,7 @@ const SidebarFilters = ({ handleFilters }: { handleFilters?: any }) => {
                           checked={
                             checked.indexOf(option.value) === -1 ? false : true
                           }
-                          onChange={() => handleChange(option.value)}
-                          defaultValue={option.value}
+                          onChange={() => handleChange(option.value as string)}
                         >
                           {option.label}
                         </Checkbox>
