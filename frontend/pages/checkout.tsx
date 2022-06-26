@@ -1,10 +1,12 @@
 import { Button } from "@components/Button";
 import { EmptyCart } from "@components/EmptyCart";
+import QtySelector from "@components/ProductCard/QtySelector";
 import { useShoppingCart } from "@context/ShoppingCartContext";
 import { company } from "@utils/config";
 import { convertToINR, reducer } from "@utils/helpers";
 import { Tooltip } from "antd";
 import { NextSeo } from "next-seo";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
@@ -13,8 +15,15 @@ import { HiInformationCircle } from "react-icons/hi";
 import { RiDeleteBinLine } from "react-icons/ri";
 
 const Checkout = () => {
-  const { cartItems, removeFromCart } = useShoppingCart();
+  const {
+    cartItems,
+    getItemQty,
+    increaseItemQty,
+    decreaseItemQty,
+    removeFromCart,
+  } = useShoppingCart();
 
+  const [isMounted, setIsMounted] = useState(false);
   const [subTotal, setSubTotal] = useState<number>(0);
   const [shippingCharge, setShippingCharge] = useState<number>(50);
   const [total, setTotal] = useState<number>(0);
@@ -32,8 +41,9 @@ const Checkout = () => {
 
   useEffect(() => {
     let subTotalCal = 0;
-    for (let index = 0; index < cartItems.length; index++) {
-      subTotalCal = subTotalCal + cartItems[index].price;
+    for (let index = 0; index < cartItems?.length; index++) {
+      subTotalCal =
+        subTotalCal + cartItems[index]?.price * cartItems[index]?.qty;
     }
     if (subTotalCal > 799) {
       setShippingCharge(0);
@@ -106,6 +116,12 @@ const Checkout = () => {
     }
   }
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return null;
+
   return (
     <>
       <NextSeo title={`Checkout | ${company.name}`} />
@@ -116,7 +132,7 @@ const Checkout = () => {
         src={`https://securegw.paytm.in/merchantpgpui/checkoutjs/merchants/${process.env.NEXT_PUBLIC_MID}.js`}
       />
 
-      {cartItems.length ? (
+      {cartItems?.length ? (
         <div className="bg-white">
           <div className="relative grid grid-cols-1 gap-x-16 max-w-7xl mx-auto lg:px-8 lg:grid-cols-2 lg:pt-16">
             <h1 className="sr-only">Checkout</h1>
@@ -143,13 +159,13 @@ const Checkout = () => {
                   role="list"
                   className="text-sm font-medium divide-y divide-gray-800 divide-opacity-10"
                 >
-                  {cartItems.map((product) => (
+                  {cartItems?.map((product) => (
                     <li
                       key={product.id}
-                      className="flex items-start py-6 space-x-4 group"
+                      className="flex items-start py-6 space-x-4"
                     >
                       <Link href={`/product-view/${product.slug}`} passHref>
-                        <div className="relative aspect-1 w-20 h-20 rounded-md border border-gray-300 cursor-pointer">
+                        <div className="group relative aspect-1 w-20 h-20 rounded-md border border-gray-300 cursor-pointer">
                           <Image
                             src={product.images.data[0].attributes.url}
                             alt={product.title}
@@ -157,29 +173,39 @@ const Checkout = () => {
                             objectFit="contain"
                             className="flex-none rounded-md object-center"
                           />
+                          <div className="absolute top-0 left-0 w-full h-full bg-black rounded-md opacity-0 group-hover:opacity-10 transition-200">
+                            <p>Click to view</p>
+                          </div>
                         </div>
                       </Link>
-                      <div className="flex-auto space-y-1">
-                        <h2 className="text-gray-800 line-clamp-2 max-w-[175px]">
-                          {product.title}
-                        </h2>
-                        <div>
-                          <RiDeleteBinLine
-                            className="w-5 h-5 text-gray-500 hover:text-red-400 transition-200 cursor-pointer"
-                            onClick={() => {
-                              removeFromCart(product.id);
-                            }}
-                          />
+                      <div className="flex-auto space-y-3">
+                        <Link href={`/product-view/${product.slug}`} passHref>
+                          <h2 className="text-gray-800 line-clamp-2 max-w-[200px] cursor-pointer transition-200 ">
+                            {product.title}
+                          </h2>
+                        </Link>
+                        <div className="flex items-center space-x-4">
+                          <div>
+                            <QtySelector
+                              qty={getItemQty(product.id)}
+                              increaseItemQty={increaseItemQty}
+                              decreaseItemQty={decreaseItemQty}
+                              product={product}
+                              checkout
+                            />
+                          </div>
+                          <div>
+                            <RiDeleteBinLine
+                              className="w-5 h-5 text-gray-500 hover:text-red-400 transition-200 cursor-pointer"
+                              onClick={() => {
+                                removeFromCart(product.id);
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
-                      <div className="flex-auto">
-                        <p>{product.netQuantity || ""}</p>
-                      </div>
-                      <div className="flex-auto">
-                        <h2 className="text-gray-800">{product.qty}</h2>
-                      </div>
                       <p className="flex-none text-base font-medium text-gray-800">
-                        {convertToINR(product.price)}
+                        {convertToINR(product.price * product?.qty)}
                       </p>
                     </li>
                   ))}

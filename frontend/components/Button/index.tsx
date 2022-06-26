@@ -1,19 +1,8 @@
 import { cls } from "@utils/helpers";
-import { forwardRef, ReactNode } from "react";
+import { forwardRef } from "react";
 
-interface ButtonInterface {
-  children: ReactNode;
-  type?: "submit" | "button";
-  className?: string;
-  variant?: "primary" | "secondary" | "danger" | "ghost";
-  size?: "small" | "normal" | "large";
-  pill?: boolean;
-  onClick?: () => void;
-  disabled?: boolean;
-}
-
-const classes = {
-  base: "focus:outline-none transition ease-in-out duration-300",
+const classes: any = {
+  base: "focus:outline-none transition ease-in-out duration-200 cursor-pointer",
   disabled: "opacity-50 cursor-not-allowed",
   pill: "rounded-full",
   size: {
@@ -33,7 +22,7 @@ const classes = {
 };
 
 // eslint-disable-next-line react/display-name
-export const Button = forwardRef(
+export const Button: React.FC<any> = forwardRef(
   (
     {
       children,
@@ -45,7 +34,7 @@ export const Button = forwardRef(
       onClick,
       disabled = false,
       ...props
-    }: ButtonInterface,
+    },
     ref
   ) => (
     <button

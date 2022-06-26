@@ -33,13 +33,13 @@ function MyApp({ Component, pageProps }: { Component: any; pageProps: any }) {
         />
       </Head>
       <DeviceContext.Provider value={{ mobile }}>
-        <ProductsProvider>
-          <CartContextProvider>
+        <CartContextProvider>
+          <ProductsProvider>
             <Layout>
               <Component {...pageProps} />
             </Layout>
-          </CartContextProvider>
-        </ProductsProvider>
+          </ProductsProvider>
+        </CartContextProvider>
       </DeviceContext.Provider>
     </>
   );

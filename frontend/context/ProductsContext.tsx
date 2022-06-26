@@ -1,4 +1,5 @@
-import { ProductInterface } from "../components/ProductCard/index";
+import { CartItemInterface } from "@interfaces/CartInterfaces";
+import dayjs from "dayjs";
 import {
   createContext,
   ReactNode,
@@ -10,19 +11,17 @@ import {
 export interface ProductsContextInterface {
   loading: boolean;
   setLoading: (bool: boolean) => void;
-  products: {
-    data: ProductInterface[];
-    meta?: any;
-  };
+  products: CartItemInterface[];
 }
 
 const ProductsContext = createContext({} as ProductsContextInterface);
 
 export function ProductsProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState<boolean>(false);
-  const [products, setProducts] = useState<any>([]);
+  const [products, setProducts] = useState<CartItemInterface[]>([]);
 
   async function fetchProducts() {
+    setLoading(true);
     try {
       const endPoint = `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/products?populate=*`;
       fetch(endPoint, {
@@ -33,7 +32,35 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
         },
       })
         .then((res) => res.json())
-        .then((resolvedData) => setProducts(resolvedData));
+        .then((resolvedData) => {
+          if (resolvedData.data.length !== 0) {
+            const today = dayjs(new Date());
+            const priorDate = today.subtract(2, "days");
+            resolvedData = resolvedData.data.map(
+              (product: {
+                id: number;
+                attributes: {
+                  newArrival: boolean;
+                  createdAt:
+                    | string
+                    | number
+                    | Date
+                    | dayjs.Dayjs
+                    | null
+                    | undefined;
+                };
+              }) => {
+                product.attributes.newArrival =
+                  dayjs(product.attributes.createdAt) > priorDate
+                    ? true
+                    : false;
+                return { ...product.attributes, id: product.id };
+              }
+            );
+          }
+
+          setProducts(resolvedData);
+        });
     } catch (error) {
       console.log(error);
     } finally {
@@ -42,7 +69,9 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    fetchProducts();
+    if (!products.length) {
+      fetchProducts();
+    }
   }, []);
 
   return (
