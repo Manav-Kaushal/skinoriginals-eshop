@@ -25,7 +25,7 @@ const Checkout = () => {
 
   const [isMounted, setIsMounted] = useState(false);
   const [subTotal, setSubTotal] = useState<number>(0);
-  const [shippingCharge, setShippingCharge] = useState<number>(50);
+  const [shippingCharge, setShippingCharge] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
   const [isFormValid, setIsFormValid] = useState<boolean>(false);
   const [form, setForm] = useState({
@@ -41,17 +41,20 @@ const Checkout = () => {
 
   useEffect(() => {
     let subTotalCal = 0;
+    let shipping = 0;
     for (let index = 0; index < cartItems?.length; index++) {
       subTotalCal =
         subTotalCal + cartItems[index]?.price * cartItems[index]?.qty;
     }
     if (subTotalCal > 799) {
+      shipping = 0;
       setShippingCharge(0);
     } else {
+      shipping = 50;
       setShippingCharge(50);
     }
     setSubTotal(subTotalCal);
-    setTotal(subTotalCal + shippingCharge);
+    setTotal(subTotalCal + shipping);
   }, [cartItems]);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
