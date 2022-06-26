@@ -118,7 +118,7 @@ const Slug = ({ product }: { product: any }) => {
                     type="button"
                     variant="secondary"
                     size="large"
-                    onClick={() => increaseItemQty(product.id)}
+                    onClick={() => increaseItemQty(product)}
                   >
                     Add to bag
                   </Button>

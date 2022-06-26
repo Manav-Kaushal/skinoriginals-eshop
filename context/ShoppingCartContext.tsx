@@ -3,26 +3,30 @@ import {
   CartItemInterface,
   CartProviderInterface,
 } from "@interfaces/CartInterfaces";
-import { createContext, useContext, useState } from "react";
+import { useLocalStorage } from "@utils/hooks/useLocalStorage";
+import { createContext, useContext } from "react";
 
 const CartContext = createContext({} as CartContextInterface);
 
 export function CartContextProvider({ children }: CartProviderInterface) {
-  const [cartItems, setCartItems] = useState<CartItemInterface[]>([]);
+  const [cartItems, setCartItems] = useLocalStorage<CartItemInterface[]>(
+    "cart",
+    []
+  );
 
-  const cartQty = cartItems.reduce((qty, item) => item.qty + qty, 0);
+  const cartQty = cartItems?.reduce((qty, product) => product.qty + qty, 0);
 
   function getItemQty(id: number) {
     return cartItems.find((item) => item.id === id)?.qty || 0;
   }
 
-  function increaseItemQty(id: number) {
+  function increaseItemQty(product: CartItemInterface) {
     setCartItems((currItems: any) => {
-      if (currItems.find((item: any) => item.id === id) == null) {
-        return [...currItems, { id, qty: 1 }];
+      if (currItems.find((item: any) => item.id === product.id) == null) {
+        return [...currItems, { ...product, qty: 1 }];
       } else {
         return currItems.map((item: any) => {
-          if (item.id === id) {
+          if (item.id === product.id) {
             return { ...item, qty: item.qty + 1 };
           } else {
             return item;

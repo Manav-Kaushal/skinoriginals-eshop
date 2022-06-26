@@ -8,7 +8,7 @@ export interface CartContextInterface {
   openCart?: () => void;
   closeCart?: () => void;
   getItemQty: (id: number) => number;
-  increaseItemQty: (id: number) => void;
+  increaseItemQty: (product: CartItemInterface) => void;
   decreaseItemQty: (id: number) => void;
   removeFromCart: (id: number) => void;
   cartQty: number;
